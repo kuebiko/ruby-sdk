@@ -16,12 +16,10 @@ module Kuebiko
     end
 
     def self.build_from_hash(msg)
-      begin
-        type  = msg[:type].to_s.downcase.split('_').map(&:capitalize).join
-        Message.const_get("#{type}").new(msg)
-      rescue NameError
-        Message::Generic.new(msg)
-      end
+      type  = msg[:type].to_s.downcase.split('_').map(&:capitalize).join
+      Message.const_get("#{type}").new(msg)
+    rescue NameError
+      Message::Generic.new(msg)
     end
   end
 end
