@@ -3,10 +3,8 @@ PATH
   specs:
     kuebiko (0.0.1)
       celluloid
-      celluloid-io
       hashie (~> 2.1)
       mosquitto
-      mqtt
       virtus (~> 1.0.2)
 
 GEM
@@ -18,9 +16,6 @@ GEM
       thread_safe (~> 0.3, >= 0.3.1)
     celluloid (0.15.2)
       timers (~> 1.1.0)
-    celluloid-io (0.15.0)
-      celluloid (>= 0.15.0)
-      nio4r (>= 0.5.0)
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
     descendants_tracker (0.0.4)
@@ -29,8 +24,6 @@ GEM
     hashie (2.1.1)
     ice_nine (0.11.0)
     mosquitto (0.3)
-    mqtt (0.2.0)
-    nio4r (1.0.0)
     thread_safe (0.3.4)
     timers (1.1.0)
     virtus (1.0.2)

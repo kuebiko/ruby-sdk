@@ -19,8 +19,6 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency('virtus', '~> 1.0.2')
   gem.add_dependency('hashie', '~> 2.1')
-  gem.add_dependency('mqtt')
   gem.add_dependency('mosquitto')
   gem.add_dependency('celluloid')
-  gem.add_dependency('celluloid-io')
 end

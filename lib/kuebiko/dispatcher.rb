@@ -1,56 +1,66 @@
-require 'mosquitto'
-require 'socket'
+require 'json'
 
 module Kuebiko
   class Dispatcher
-    def initialize(options = {})
-      @options = options
+    attr_reader :message_router
 
-      # Defaults
-      @options[:mqtt_host] ||= 'localhost'
-      @options[:mqtt_port] ||= 1883
-      @options[:client_id] ||= Process.pid.to_s
+    def initialize(mqtt_client, options = {})
+      @mqtt_client = mqtt_client
+      # @router = options.fetch(:message_router) { Kuebiko::MessageRouter.new(mqtt_client) }
 
-      @mqtt = Mosquitto::Client.new(@options[:client_id])
+      # Initialize
+      @outbox = []
+      @reply_callbacks = {}
+      @handlers = {}
 
-      initialize_mqtt
+      initialize_mqtt_callbacks
     end
 
-    def route(message)
-      puts message.to_s
+    def register_message_handler(topic, message_type, callback)
+      @handlers[topic] ||= {}
+      @handlers[topic][message_type] ||= []
+
+      @handlers[topic][message_type] << callback
+
+      # Listen to topic
+      @mqtt_client.subscribe_to_topic(topic)
+    end
+
+    def route(raw_message)
+      puts [raw_message.topic,raw_message.to_s].join(': ')
+      puts @handlers
+
+      if @handlers[raw_message.topic]
+        msg = Kuebiko::Message.new JSON.parse(raw_message.to_s)
+
+        if @handlers[raw_message.topic][msg.class]
+          @handlers[raw_message.topic][msg.class].each { |callback| callback.call(msg) }
+        end
+      end
+
+    rescue JSON::ParserError
+      # TODO: Proper log this you idiot
+      puts 'Invalid message payload'
     end
 
     def send(message)
+      @mqtt_client.publish(nil, message.to_json, Mosquitto::AT_LEAST_ONCE, true)
+    rescue Mosquitto::Error
+      @outbox << message
+    end
+
+    def flush_message_queue
+      queue_to_process = []
+      @outbox.reject! { |v| queue_to_process << v }
+
+      queue_to_process.each { |msg| send(msg) }
     end
 
     protected
 
-    def initialize_mqtt
-      initialize_mqtt_callbacks
-
-      @mqtt.loop_start
-
-      @mqtt.connect_async(@options[:mqtt_host], @options[:mqtt_port], 10)
-    end
-
     def initialize_mqtt_callbacks
-      @mqtt.on_connect { |_| setup_mqtt_topics }
-      @mqtt.on_message { |msg| route(msg) }
-    end
-
-    def setup_mqtt_topics
-      mqtt_topics.each { |topic| @mqtt.subscribe(nil, topic, Mosquitto::AT_LEAST_ONCE) }
-    end
-
-    def mqtt_topics
-      ['agents', hostname, @options[:client_id]].reduce([]) do |acc, val|
-        acc << (acc + [val]).join('/')
-        acc
-      end
-    end
-
-    def hostname
-      Socket.gethostname
+      @mqtt_client.register_on_message_callback(method(:route))
+      # @mqtt_client.on_message { |msg| route(msg) }
     end
   end
 end
