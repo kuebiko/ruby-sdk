@@ -6,14 +6,13 @@ module Kuebiko
 
     def initialize(mqtt_client, options = {})
       @mqtt_client = mqtt_client
-      # @router = options.fetch(:message_router) { Kuebiko::MessageRouter.new(mqtt_client) }
 
       # Initialize
       @outbox = []
       @reply_callbacks = {}
       @handlers = {}
 
-      initialize_mqtt_callbacks
+      @mqtt_client.register_on_message_callback(method(:route))
     end
 
     def register_message_handler(topic, message_type, callback)
@@ -26,15 +25,18 @@ module Kuebiko
       @mqtt_client.subscribe_to_topic(topic)
     end
 
-    def route(raw_message)
-      puts [raw_message.topic,raw_message.to_s].join(': ')
-      puts @handlers
+    def route(mqtt_message)
+      if @handlers[mqtt_message.topic]
+        msg = Kuebiko::Message.build_from_hash JSON.parse(mqtt_message.to_s, {symbolize_names: true})
 
-      if @handlers[raw_message.topic]
-        msg = Kuebiko::Message.new JSON.parse(raw_message.to_s)
-
-        if @handlers[raw_message.topic][msg.class]
-          @handlers[raw_message.topic][msg.class].each { |callback| callback.call(msg) }
+        if @handlers[mqtt_message.topic][msg.class]
+          @handlers[mqtt_message.topic][msg.class].each do |callback|
+            begin
+              callback.call(msg)
+            rescue StandardError => e
+              puts "Error calling handler callback: #{e.message}"
+            end
+          end
         end
       end
 
@@ -54,13 +56,6 @@ module Kuebiko
       @outbox.reject! { |v| queue_to_process << v }
 
       queue_to_process.each { |msg| send(msg) }
-    end
-
-    protected
-
-    def initialize_mqtt_callbacks
-      @mqtt_client.register_on_message_callback(method(:route))
-      # @mqtt_client.on_message { |msg| route(msg) }
     end
   end
 end

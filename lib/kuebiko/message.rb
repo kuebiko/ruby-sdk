@@ -16,8 +16,16 @@ module Kuebiko
     end
 
     def self.build_from_hash(msg)
-      type  = msg[:type].to_s.downcase.split('_').map(&:capitalize).join
-      Message.const_get("#{type}").new(msg)
+      type  = msg[:type]
+                .to_s.downcase
+                .split('/')
+                .map {|p|
+                  p.split('_')
+                  .map(&:capitalize)
+                  .join
+                }.join('::')
+
+      Message.const_get(type).new(msg)
     rescue NameError
       Message::Generic.new(msg)
     end

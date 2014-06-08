@@ -14,6 +14,7 @@ module Kuebiko
 
       @outbox = []
       @reply_callbacks = {}
+      @subscribed_topics = []
 
       @on_message_callbacks = []
 
@@ -25,10 +26,22 @@ module Kuebiko
     end
 
     def subscribe_to_topic(topic)
-      puts @mqtt.subscribe(nil, topic, Mosquitto::AT_LEAST_ONCE)
+      unless @subscribed_topics.find { |v| v[:topic] == topic }
+        tid = @subscribed_topics.push(topic: topic, subscribed: false).length - 1
+        @mqtt.subscribe(tid, topic, Mosquitto::AT_LEAST_ONCE)
+      end
     end
 
     protected
+
+    def flush_topics
+      @subscribed_topics.each_with_index do |t, k|
+        unless t[:subscribed]
+          @mqtt.subscribe(k, t[:topic], Mosquitto::AT_LEAST_ONCE)
+          t[:subscribed] = true
+        end
+      end
+    end
 
     def initialize_mqtt
       setup_mqtt_callbacks
@@ -42,9 +55,19 @@ module Kuebiko
     end
 
     def setup_mqtt_callbacks
-      @mqtt.on_message { |msg| handle_message(msg); puts "Mqtt on_message" }
-      # @mqtt.on_connect { |_| puts 'Mqtt on_connect' }
-      # @mqtt.on_subscribe { |_, _| puts 'Mqtt on_subscribe' }
+      @mqtt.on_message do |msg|
+        handle_message(msg)
+      end
+
+      @mqtt.on_connect do |_|
+        flush_topics
+      end
+
+      # @mqtt.on_subscribe do |mid, qos|
+        # puts "Mqtt on_subscribe: #{mid} -> #{qos}"
+        # puts qos
+        # @subscribed_topics[mid][:subscribed] = true
+      # end
     end
   end
 end
