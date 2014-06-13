@@ -43,6 +43,9 @@ module Kuebiko
       end
     end
 
+    def flush_messages
+    end
+
     def initialize_mqtt
       setup_mqtt_callbacks
 

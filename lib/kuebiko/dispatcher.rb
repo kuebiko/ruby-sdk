@@ -27,7 +27,7 @@ module Kuebiko
 
     def route(mqtt_message)
       if @handlers[mqtt_message.topic]
-        msg = Kuebiko::Message.build_from_hash JSON.parse(mqtt_message.to_s, {symbolize_names: true})
+        msg = Kuebiko::Message.new JSON.parse(mqtt_message.to_s, symbolize_names: true)
 
         if @handlers[mqtt_message.topic][msg.class]
           @handlers[mqtt_message.topic][msg.class].each do |callback|
@@ -45,7 +45,8 @@ module Kuebiko
       puts 'Invalid message payload'
     end
 
-    def send(message)
+    # Sends
+    def send(message, callback = nil)
       @mqtt_client.publish(nil, message.to_json, Mosquitto::AT_LEAST_ONCE, true)
     rescue Mosquitto::Error
       @outbox << message

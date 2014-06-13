@@ -1,5 +1,5 @@
 module Kuebiko
-  class Message
+  class MessagePayload
     class SystemCommand
       class Ping < SystemCommand
       end

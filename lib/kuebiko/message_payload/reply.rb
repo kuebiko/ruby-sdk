@@ -1,6 +1,6 @@
 module Kuebiko
-  class Message
-    class Reply < Message
+  class MessagePayload
+    class Reply < MessagePayload
       attribute :original_message_id, String
       attribute :node_type, String
       attribute :node_id, String
