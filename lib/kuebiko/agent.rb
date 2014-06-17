@@ -34,20 +34,21 @@ module Kuebiko
       end
     end
 
-    def handle_ping(_)
+    def handle_ping(_ = nil)
       puts "PONG"
     end
 
-    def handle_shutdown(_)
-      puts 'Requesting shutdown'
-      terminate
+    def handle_shutdown(_ = nil)
+      Actor.all.each(&:terminate!)
     end
 
     def agent_control_topics
       [
-        [hostname],
-        [hostname, 'agents', agent_id],
-        [hostname, agent_type]
+        [:agents],
+        [:agents, agent_type],
+        [:hosts, hostname],
+        [:hosts, hostname, :agents, agent_id],
+        [:hosts, hostname, agent_type]
       ].map { |topic| topic.join('/') }
     end
   end
