@@ -16,6 +16,10 @@ module Kuebiko
     end
 
     def register_message_handler(topic, message_type, callback)
+      if message_type.respond_to?(:payload_type)
+        message_type = message_type.payload_type
+      end
+
       @handlers[topic] ||= {}
       @handlers[topic][message_type] ||= []
 
@@ -27,10 +31,11 @@ module Kuebiko
 
     def route(mqtt_message)
       if @handlers[mqtt_message.topic]
-        msg = Kuebiko::Message.new JSON.parse(mqtt_message.to_s, symbolize_names: true)
+        msg = Kuebiko::Message.build_from_hash JSON.parse(mqtt_message.to_s, symbolize_names: true)
 
-        if @handlers[mqtt_message.topic][msg.class]
-          @handlers[mqtt_message.topic][msg.class].each do |callback|
+        if @handlers[mqtt_message.topic][msg.type]
+
+          @handlers[mqtt_message.topic][msg.type].each do |callback|
             begin
               callback.call(msg)
             rescue StandardError => e
@@ -40,6 +45,8 @@ module Kuebiko
         end
       end
 
+    rescue StandardError => e
+      puts e.inspect
     rescue JSON::ParserError
       # TODO: Proper log this you idiot
       puts 'Invalid message payload'
@@ -47,7 +54,9 @@ module Kuebiko
 
     # Sends
     def send(message, callback = nil)
-      @mqtt_client.publish(nil, message.to_json, Mosquitto::AT_LEAST_ONCE, true)
+      message.send_to.each do |topic|
+        @mqtt_client.publish(nil, topic, Kuebiko::MessageSerializer.call(message), Mosquitto::AT_LEAST_ONCE, true)
+      end
     rescue Mosquitto::Error
       @outbox << message
     end

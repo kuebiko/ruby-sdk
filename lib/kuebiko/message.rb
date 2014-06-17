@@ -2,6 +2,9 @@ require 'virtus'
 
 module Kuebiko
   class Message
+    class NoReplyInformationPresent < StandardError; end
+    class NoMessageIdPresent < StandardError; end
+
     include Virtus.model
 
     attribute :created_at, DateTime
@@ -10,6 +13,7 @@ module Kuebiko
 
     attribute :send_to, Array[String]
     attribute :reply_to, String
+    attribute :original_message_id, String
 
     attribute :sent_at, DateTime
 
@@ -22,11 +26,14 @@ module Kuebiko
     end
 
     def type
-      self.class.name.to_s
+      payload.class.payload_type if payload
     end
 
-    def to_json
-      attributes.to_json
+    def build_reply_message
+      fail NoReplyInformationPresent if reply_to.nil? || reply_to.empty?
+      fail NoMessageIdPresent if message_id.nil? || message_id.empty?
+
+      self.class.new(send_to: [reply_to], original_message_id: message_id)
     end
 
     def self.build_from_hash(msg_hash)

@@ -32,6 +32,10 @@ module Kuebiko
       end
     end
 
+    def publish(mid, topic, content, qos, retain_flag = true)
+      @mqtt.publish(mid, topic, content, qos, retain_flag)
+    end
+
     protected
 
     def flush_topics

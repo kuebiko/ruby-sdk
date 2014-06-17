@@ -24,10 +24,10 @@ module Kuebiko
 
     def register_system_handlers
       { 'Ping' => :handle_ping, 'Shutdown' => :handle_shutdown }.each do |command, handler|
-        agent_topics.each do |topic|
+        agent_control_topics.each do |topic|
           dispatcher.register_message_handler(
             topic,
-            Kuebiko::Message::SystemCommand.const_get(command),
+            Kuebiko::MessagePayload::SystemCommand.const_get(command),
             method(handler)
           )
         end
@@ -43,7 +43,7 @@ module Kuebiko
       terminate
     end
 
-    def agent_topics
+    def agent_control_topics
       [
         [hostname],
         [hostname, 'agents', agent_id],
