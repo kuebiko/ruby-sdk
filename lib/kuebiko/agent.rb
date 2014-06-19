@@ -11,7 +11,7 @@ module Kuebiko
       @agent_id = options.fetch(:agent_id) { Process.pid.to_s }
       @agent_type = options.fetch(:agent_type) { self.class.name }
       @mqtt_client = options.fetch(:mqtt_client) { Kuebiko::MqttClient.new(client_id: @client_id) }
-      @dispatcher = options.fetch(:dispatcher) { Dispatcher.new(@mqtt_client) }
+      @dispatcher = options.fetch(:dispatcher) { Dispatcher.new(@mqtt_client, agent_reply_topic) }
 
       @shutdown_agent = false
 
@@ -42,14 +42,17 @@ module Kuebiko
       Actor.all.each(&:terminate!)
     end
 
+    def agent_reply_topic
+      [:hosts, hostname, :agents, agent_id].join('/')
+    end
+
     def agent_control_topics
       [
         [:agents],
         [:agents, agent_type],
         [:hosts, hostname],
-        [:hosts, hostname, :agents, agent_id],
         [:hosts, hostname, agent_type]
-      ].map { |topic| topic.join('/') }
+      ].map { |topic| topic.join('/') } << agent_reply_topic
     end
   end
 end

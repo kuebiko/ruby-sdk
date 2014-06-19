@@ -25,7 +25,7 @@ module Kuebiko
       super
     end
 
-    def type
+    def payload_type
       payload.class.payload_type if payload
     end
 
