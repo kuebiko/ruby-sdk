@@ -20,6 +20,18 @@ module Kuebiko
       Generic.new(body: payload)
     end
 
+    def serialize
+      attributes.reduce({}) do |acc, (key, value)|
+        if value.respond_to?(:serialize)
+          acc[key] = value.serialize
+        else
+          acc[key] = value
+        end
+
+        acc
+      end
+    end
+
     def self.payload_type
       class_name = name
       class_name.slice! Kuebiko::MessagePayload.to_s
