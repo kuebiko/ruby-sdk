@@ -26,11 +26,11 @@ GEM
     mosquitto (0.3)
     thread_safe (0.3.4)
     timers (1.1.0)
-    virtus (1.0.2)
+    virtus (1.0.3)
       axiom-types (~> 0.1)
       coercible (~> 1.0)
-      descendants_tracker (~> 0.0.3)
-      equalizer (~> 0.0.9)
+      descendants_tracker (~> 0.0, >= 0.0.3)
+      equalizer (~> 0.0, >= 0.0.9)
 
 PLATFORMS
   ruby
