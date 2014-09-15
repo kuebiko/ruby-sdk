@@ -17,8 +17,8 @@ Gem::Specification.new do |gem|
   gem.test_files       = `git ls-files -- {spec}/*`.split("\n")
   gem.extra_rdoc_files = %w(LICENSE README.md TODO.md)
 
-  gem.add_dependency('virtus', '>= 1.0.2')
-  gem.add_dependency('hashie', '>= 2.1')
+  gem.add_dependency('virtus')
+  gem.add_dependency('hashie')
   gem.add_dependency('mosquitto')
   gem.add_dependency('celluloid')
 end

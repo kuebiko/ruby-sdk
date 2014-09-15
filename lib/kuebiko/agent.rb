@@ -23,7 +23,10 @@ module Kuebiko
     end
 
     def register_system_handlers
-      { 'Ping' => :handle_ping, 'Shutdown' => :handle_shutdown }.each do |command, handler|
+      {
+        'Ping' => :handle_ping,
+        'Shutdown' => :handle_shutdown
+      }.each do |command, handler|
         agent_control_topics.each do |topic|
           dispatcher.register_message_handler(
             topic,
@@ -35,7 +38,7 @@ module Kuebiko
     end
 
     def handle_ping(_ = nil)
-      puts "PONG"
+      puts 'PONG'
     end
 
     def handle_shutdown(_ = nil)

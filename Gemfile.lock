@@ -1,11 +1,11 @@
 PATH
   remote: .
   specs:
-    kuebiko (0.0.1)
+    kuebiko (0.0.2)
       celluloid
-      hashie (>= 2.1)
+      hashie
       mosquitto
-      virtus (>= 1.0.2)
+      virtus
 
 GEM
   remote: https://rubygems.org/
