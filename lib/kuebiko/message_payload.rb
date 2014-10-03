@@ -9,11 +9,11 @@ module Kuebiko
                 .to_s
                 .downcase
                 .split('/')
-                .map {|p|
+                .map do |p|
                   p.split('_')
                   .map(&:capitalize)
                   .join
-                }.join('::')
+                end.join('::')
 
       const_get(type).new(payload)
     rescue NameError

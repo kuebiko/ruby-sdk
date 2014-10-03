@@ -87,7 +87,7 @@ module Kuebiko
     #
     def route(mqtt_message)
       topic = mqtt_message.topic
-      message = build_message
+      message = build_message(mqtt_message)
 
       # Replies are received through the reply_to topic and should contain
       # the original message id. If message is a reply but no handler is
@@ -110,7 +110,6 @@ module Kuebiko
       Message.build_from_hash(
         JSON.parse(raw_message.to_s, symbolize_names: true)
       )
-
     rescue StandardError => e
       puts e.inspect
     rescue JSON::ParserError
@@ -137,7 +136,7 @@ module Kuebiko
     end
 
     def handle(topic, message)
-      return nil unless handler_available(topic, message.payload_type)
+      return nil unless handler_available?(topic, message.payload_type)
 
       @handlers[topic][message.payload_type].each do |callback|
         begin

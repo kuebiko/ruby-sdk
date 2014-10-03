@@ -1,3 +1,4 @@
+# Base module for the Kuebiko Ruby SDK
 module Kuebiko; end
 
 require 'kuebiko/agent'

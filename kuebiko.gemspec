@@ -7,7 +7,7 @@ Gem::Specification.new do |gem|
   gem.version     = Kuebiko::VERSION
   gem.authors     = ['David Ramalho']
   gem.email       = ['dramalho@gmail.com']
-  gem.description = 'Ruby SDK to develop Kuebiko nodes'
+  gem.description = 'Ruby SDK to develop Kuebiko agents'
   gem.summary     = gem.description
   gem.homepage    = 'https://gitlab.com/kuebiko/ruby-kuebiko'  # Yes, git*LAB* :)
   gem.license     = 'MIT'
