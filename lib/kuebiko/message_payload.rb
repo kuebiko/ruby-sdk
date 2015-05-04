@@ -6,14 +6,14 @@ module Kuebiko
 
     def self.build_from_hash(payload_type, payload)
       type  = payload_type
-                .to_s
-                .downcase
-                .split('/')
-                .map do |p|
-                  p.split('_')
-                  .map(&:capitalize)
-                  .join
-                end.join('::')
+              .to_s
+              .downcase
+              .split('/')
+              .map do |p|
+                p.split('_')
+                .map(&:capitalize)
+                .join
+              end.join('::')
 
       const_get(type).new(payload)
     rescue NameError
@@ -21,14 +21,12 @@ module Kuebiko
     end
 
     def serialize
-      attributes.reduce({}) do |acc, (key, value)|
-        if value.respond_to?(:serialize)
-          acc[key] = value.serialize
-        else
-          acc[key] = value
-        end
-
-        acc
+      attributes.each_with_object({}) do |(key, value), acc|
+        acc[key] = if value.respond_to?(:serialize)
+                     value.serialize
+                   else
+                     value
+                   end
       end
     end
 
