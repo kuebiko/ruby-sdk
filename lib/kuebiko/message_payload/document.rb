@@ -2,7 +2,9 @@ module Kuebiko
   class MessagePayload
     class Document < Resource
       # Actual content
-      attribute :content, Hash
+      attribute :content, String
+      attribute :keywords, Array[String]
+      attribute :metadata, Hash
     end
   end
 end
