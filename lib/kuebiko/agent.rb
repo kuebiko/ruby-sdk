@@ -7,11 +7,11 @@ module Kuebiko
     attr_accessor :mqtt_client, :dispatcher, :agent_id, :agent_type, :hostname
 
     def initialize(options = {})
-      @hostname = options.fetch(:hostname) { Socket.gethostname }
-      @agent_id = options.fetch(:agent_id) { Process.pid.to_s }
-      @agent_type = options.fetch(:agent_type) { self.class.name }
-      @mqtt_client = options.fetch(:mqtt_client) { Kuebiko::MqttClient.new(client_id: @client_id) }
-      @dispatcher = options.fetch(:dispatcher) { Dispatcher.new(@mqtt_client, agent_reply_topic) }
+      @hostname     = options.fetch(:hostname)    { Socket.gethostname }
+      @agent_id     = options.fetch(:agent_id)    { Process.pid.to_s }
+      @agent_type   = options.fetch(:agent_type)  { self.class.name }
+      @mqtt_client  = options.fetch(:mqtt_client) { Kuebiko::MqttClient.new(client_id: @client_id) }
+      @dispatcher   = options.fetch(:dispatcher)  { Dispatcher.new(@mqtt_client, agent_reply_topic) }
 
       @shutdown_agent = false
 
